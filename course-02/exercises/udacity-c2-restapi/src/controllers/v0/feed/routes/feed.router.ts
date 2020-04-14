@@ -16,15 +16,61 @@ router.get('/', async (req: Request, res: Response) => {
     res.send(items);
 });
 
-//@TODO
-//Add an endpoint to GET a specific resource by Primary Key
+//  Get a specific feed item by its ID
+router.get('/:feedItemId', async (req: Request, res: Response) => {
+    const { feedItemId } = req.params
+
+    console.log(`Will go looking for feed item with ID ${feedItemId}`)
+
+    try {
+        let feedItem = await FeedItem.findByPk(feedItemId)
+
+        res.status(200).send(feedItem)
+    }
+    catch (err) {
+        res.status(500)
+        .send({
+          'status' : 'error',
+          'error_message' : err
+        })
+    }
+});
 
 // update a specific resource
 router.patch('/:id', 
     requireAuth, 
     async (req: Request, res: Response) => {
-        //@TODO try it yourself
-        res.send(500).send("not implemented")
+        
+        const { url, caption } = req.body
+        const { id } = req.params
+
+        try {
+            let feedItem = await FeedItem.findByPk(id)
+
+            if (caption !== undefined) {
+                feedItem.caption = caption
+            }
+
+            if (url !== undefined) {
+                feedItem.url = url
+            }
+
+            await feedItem.save()
+    
+            res.status(200).send({
+                'action' : 'update',
+                'status' : 'success',
+                'updated_record': feedItem
+            })
+        }
+        catch (err) {
+            res.status(500)
+            .send({
+                'action' : 'update',
+                'status' : 'error',
+                'error_message' : err
+            })
+        }
 });
 
 
