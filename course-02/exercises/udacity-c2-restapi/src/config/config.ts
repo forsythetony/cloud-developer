@@ -18,3 +18,5 @@ export const config = {
     "dialect": "postgres"
   }
 }
+
+// console.log(`Starting with the following config \n${JSON.stringify(config)}`)

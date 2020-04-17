@@ -25,8 +25,7 @@ async function comparePasswords(plainTextPassword: string, hash: string): Promis
 }
 
 function generateJWT(user: User): string {
-    //@TODO Use jwt to create a new JWT Payload containing
-    return jwt.sign(user, c.jwt_secret)
+    return jwt.sign(user.short(), c.jwt_secret)
 }
 
 export function requireAuth(req: Request, res: Response, next: NextFunction) {
@@ -84,7 +83,14 @@ router.post('/login', async (req: Request, res: Response) => {
     }
 
     // Generate JWT
-    const jwt = generateJWT(user);
+    let jwt;
+    try {
+        jwt = await generateJWT(user);
+    }
+    catch (e) {
+        console.log(`Failed to generate token with error...\n${e.message}`)
+        throw e
+    }
 
     res.status(200).send({ auth: true, token: jwt, user: user.short()});
 });
@@ -125,7 +131,14 @@ router.post('/', async (req: Request, res: Response) => {
     }
 
     // Generate JWT
-    const jwt = generateJWT(savedUser);
+    let jwt;
+    try {
+        jwt = await generateJWT(savedUser);
+    }
+    catch (e) {
+        console.log(`Failed to generate token with error...\n${e.message}`)
+        throw e
+    }
 
     res.status(201).send({token: jwt, user: savedUser.short()});
 });
